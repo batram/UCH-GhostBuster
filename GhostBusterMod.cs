@@ -38,7 +38,7 @@ namespace GhostBuster
         public static ConfigEntry<KeyCode> StoreGhostDataKey;
         public static ConfigEntry<KeyCode> LoadGhostDataKey;
         public static ConfigEntry<KeyCode> ToggleGhostTextKey;
-
+        public static ConfigEntry<KeyCode> ClearAllGhostReplaysKey;
 
         public static bool InputReplay = false;
 
@@ -66,6 +66,7 @@ namespace GhostBuster
             StoreGhostDataKey = Config.Bind("INPUT", "StoreGhostDataKey", KeyCode.K, "Keybinding: Load stored data from clipboard");
             SwitchGhostModeKey = Config.Bind("INPUT", "SwitchGhostModeKey", KeyCode.H, "Keybinding: Store ghost data in clipboard");
             ToggleGhostTextKey = Config.Bind("INPUT", "ToggleGhostTextKey", KeyCode.N, "Keybinding: Toggle text above ghosts");
+            ClearAllGhostReplaysKey = Config.Bind("INPUT", "ClearAllGhostReplays", KeyCode.X, "Keybinding: Toggle text above ghosts");
         }
 
 
@@ -132,6 +133,13 @@ namespace GhostBuster
             GhostFraid = new Dictionary<int, Character>();
         }
 
+        public static void ClearAllReplayGhostsData()
+        {
+            ClearReplayGhosts();
+            Replays = new Dictionary<string, List<GhostData>>();
+            StoredReplays = new Dictionary<string, List<GhostData>>();
+        }
+
         public static void LookUpGhostId(string ghostId)
         {
             /*
@@ -154,7 +162,7 @@ namespace GhostBuster
 
             return name;
         }
-        
+
         public static IOrderedEnumerable<GhostData> SortGhostByTime(List<GhostData> replays)
         {
             return replays.OrderBy(d => d.lastTime != 0 ? d.lastTime : float.PositiveInfinity);

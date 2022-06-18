@@ -36,6 +36,10 @@ namespace GhostBuster.Patches
                 {
                     ToggleGhostText();
                 }
+                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(GhostBusterMod.ClearAllGhostReplaysKey.Value))
+                {
+                    ClearAllGhostReplays();
+                }
             }
         }
 
@@ -49,6 +53,11 @@ namespace GhostBuster.Patches
         {
             GhostBusterMod.ShowGhostText.Value = !GhostBusterMod.ShowGhostText.Value;
             DisplayMessage("Show Ghost text: " + (GhostBusterMod.ShowGhostText.Value ? "Enabled" : "Disabled"));
+        }
+        static void ClearAllGhostReplays()
+        {
+            GhostBusterMod.ClearAllReplayGhostsData();
+            DisplayMessage("Cleared all GhostReplays!");
         }
 
         public static void StoreGhostData()
@@ -131,7 +140,6 @@ namespace GhostBuster.Patches
             }
 
         }
-
         static void LoadGhostData()
         {
             DisplayMessage("Loading Ghost Data from clipboard!");
