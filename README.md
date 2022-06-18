@@ -1,6 +1,10 @@
 # Ghost Buster Mod - Challenge Ghost Replay
 This is an `Ultimate Chicken Horse` `BepInEx` mod that enables ghost replays of challenge runs.
 
+
+https://user-images.githubusercontent.com/1382274/174427038-e74f70fc-9ce6-4995-b1f3-9935614be623.mp4
+
+
 In Treehouse (with Challenge mode selected) or in Challenge level hotkeys:
 
 | Key          |  Overrides                         |
