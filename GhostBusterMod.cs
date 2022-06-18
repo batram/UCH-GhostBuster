@@ -492,11 +492,8 @@ namespace GhostBuster
         {
             static void Postfix(ChallengeControl __instance)
             {
-                string name = GameState.GetInstance().currentSnapshotInfo.snapshotCode;
-                if (name == "")
-                {
-                    name = "local" + GameState.GetInstance().currentSnapshotInfo.snapshotName;
-                }
+                string name = GetCurrentLevelName();
+                
                 if (ShowGhosts.Value &&
                     ((SelectedGhostMode.Value != GhostMode.Stored && Replays.ContainsKey(name))
                       || (SelectedGhostMode.Value == GhostMode.Stored && StoredReplays.ContainsKey(name))))
