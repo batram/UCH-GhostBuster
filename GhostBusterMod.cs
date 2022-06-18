@@ -149,6 +149,11 @@ namespace GhostBuster
 
             return name;
         }
+        
+        public static IOrderedEnumerable<GhostData> SortGhostByTime(List<GhostData> replays)
+        {
+            return replays.OrderBy(d => d.lastTime != 0 ? d.lastTime : float.PositiveInfinity);
+        }
 
         [HarmonyPatch(typeof(Character), nameof(Character.SetupReplay))]
         static class CharacterSetupReplayPatch
@@ -444,7 +449,7 @@ namespace GhostBuster
                         if (Replays[name].Count > MaxGhostNumber.Value)
                         {
                             // Remove slowest replay
-                            var sorted = Replays[name].OrderBy(d => d.LastDataPoint.timestamp);
+                            var sorted = SortGhostByTime(Replays[name]);
                             var ByeByeGhost = sorted.Last();
                             if (SelectedGhostMode.Value == GhostMode.Last)
                             {
@@ -517,9 +522,8 @@ namespace GhostBuster
                             }
                             break;
                         case GhostMode.Fastest:
-                            var sorted = Replays[name].OrderBy(d => d.lastTime);
                             ClearReplayGhosts();
-                            AddReplayGhost(sorted.First());
+                            AddReplayGhost(SortGhostByTime(Replays[name]).First());
                             break;
                         case GhostMode.Last:
                             ClearReplayGhosts();
