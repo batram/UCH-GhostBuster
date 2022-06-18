@@ -66,7 +66,7 @@ namespace GhostBuster
             StoreGhostDataKey = Config.Bind("INPUT", "StoreGhostDataKey", KeyCode.K, "Keybinding: Load stored data from clipboard");
             SwitchGhostModeKey = Config.Bind("INPUT", "SwitchGhostModeKey", KeyCode.H, "Keybinding: Store ghost data in clipboard");
             ToggleGhostTextKey = Config.Bind("INPUT", "ToggleGhostTextKey", KeyCode.N, "Keybinding: Toggle text above ghosts");
-            ClearAllGhostReplaysKey = Config.Bind("INPUT", "ClearAllGhostReplays", KeyCode.X, "Keybinding: Toggle text above ghosts");
+            ClearAllGhostReplaysKey = Config.Bind("INPUT", "ClearAllGhostReplays", KeyCode.X, "Keybinding: Clear all GhostReplay data");
         }
 
 
