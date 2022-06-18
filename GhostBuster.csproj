@@ -78,7 +78,7 @@
       if not exist  "$(UCHfolder)\BepInEx\plugins\" mkdir "$(UCHfolder)\BepInEx\plugins\"
       if not exist  "$(UCHfolder)\BepInEx\plugins\GhostBuster\" mkdir "$(UCHfolder)\BepInEx\plugins\GhostBuster\"
       copy "GhostBusterMod.dll" "$(UCHfolder)\BepInEx\plugins\GhostBuster" /y
-      explorer.exe steam://rungameid/386940
+      start explorer.exe "steam://rungameid/386940"
   </PostBuildEvent>
   </PropertyGroup>
 
