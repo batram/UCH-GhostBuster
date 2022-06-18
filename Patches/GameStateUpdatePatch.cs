@@ -32,6 +32,10 @@ namespace GhostBuster.Patches
                 {
                     LoadGhostData();
                 }
+                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(GhostBusterMod.ToggleGhostTextKey.Value))
+                {
+                    ToggleGhostText();
+                }
             }
         }
 
@@ -41,10 +45,10 @@ namespace GhostBuster.Patches
             DisplayMessage("Show Replay Ghosts: " + (GhostBusterMod.ShowGhosts.Value ? "Enabled" : "Disabled"));
         }
 
-        static void ToggleLayerHighlight()
+        static void ToggleGhostText()
         {
-            var toggle = GameObject.Find("HighlightToggle")?.GetComponent<Toggle>();
-            toggle.isOn = !toggle.isOn; ;
+            GhostBusterMod.ShowGhostText.Value = !GhostBusterMod.ShowGhostText.Value;
+            DisplayMessage("Show Ghost text: " + (GhostBusterMod.ShowGhostText.Value ? "Enabled" : "Disabled"));
         }
 
         public static void StoreGhostData()

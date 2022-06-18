@@ -29,6 +29,7 @@ namespace GhostBuster
         public static ConfigEntry<GhostMode> SelectedGhostMode;
         public static ConfigEntry<int> MaxGhostNumber;
         public static ConfigEntry<bool> ClearStoredGhosts;
+        public static ConfigEntry<bool> ShowGhostText;
 
         public static ConfigEntry<UserMessageManager.UserMsgPriority> MsgPriority;
 
@@ -36,6 +37,7 @@ namespace GhostBuster
         public static ConfigEntry<KeyCode> SwitchGhostModeKey;
         public static ConfigEntry<KeyCode> StoreGhostDataKey;
         public static ConfigEntry<KeyCode> LoadGhostDataKey;
+        public static ConfigEntry<KeyCode> ToggleGhostTextKey;
 
 
         public static bool InputReplay = false;
@@ -55,6 +57,7 @@ namespace GhostBuster
             MaxGhostNumber = Config.Bind("General", "MaxGhostNumber", 10, "Maximum number of ghost replays that are kept and shown in Ghost Mode ALL");
             SelectedGhostMode = Config.Bind("General", "SelectedGhostMode", GhostMode.Fastest, "The selected Replay Ghost Mode");
             ClearStoredGhosts = Config.Bind("General", "ClearStoredGhosts", false, "Remove stored ghost replays when new one is loaded");
+            ShowGhostText = Config.Bind("General", "ShowGhostText", true, "Display text box above ghosts with name and time");
 
             MsgPriority = Config.Bind("GUI", "MsgPriority", UserMessageManager.UserMsgPriority.hi, "Display GUI messages: hi = show in middle, lo = show bottom right");
 
@@ -62,7 +65,9 @@ namespace GhostBuster
             LoadGhostDataKey = Config.Bind("INPUT", "LoadGhostDataKey", KeyCode.L, "Keybinding: Toggle Ghost Modes");
             StoreGhostDataKey = Config.Bind("INPUT", "StoreGhostDataKey", KeyCode.K, "Keybinding: Load stored data from clipboard");
             SwitchGhostModeKey = Config.Bind("INPUT", "SwitchGhostModeKey", KeyCode.H, "Keybinding: Store ghost data in clipboard");
+            ToggleGhostTextKey = Config.Bind("INPUT", "ToggleGhostTextKey", KeyCode.T, "Keybinding: Toggle text above ghosts");
         }
+        
 
         static float GetWinTime(GhostData data)
         {
@@ -221,7 +226,7 @@ namespace GhostBuster
                         }
                     }
                     __instance.nameTag.setNameBoxText(__instance.replayData.PlayerName + " (" + time + ")", __instance);
-                    __instance.nameTag.currentAlpha = 1f;
+                    __instance.nameTag.currentAlpha = GhostBusterMod.ShowGhostText.Value ? 1f : 0f;
                     __instance.nameTag.nameBox.color = Color.white;
                 }
             }
@@ -498,7 +503,7 @@ namespace GhostBuster
             static void Postfix(ChallengeControl __instance)
             {
                 string name = GetCurrentLevelName();
-                
+
                 if (ShowGhosts.Value &&
                     ((SelectedGhostMode.Value != GhostMode.Stored && Replays.ContainsKey(name))
                       || (SelectedGhostMode.Value == GhostMode.Stored && StoredReplays.ContainsKey(name))))
