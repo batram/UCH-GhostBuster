@@ -11,7 +11,7 @@ In Treehouse (with Challenge mode selected) or in Challenge level hotkeys:
 | H            | Toggle Ghost Modes                 |
 | Ctrl + L     | Load stored data from clipboard    |
 | Ctrl + K     | Store ghost data in clipboard      |
-| Ctrl + T     | Toggle text above Ghosts           |
+| Ctrl + N     | Toggle text above Ghosts           |
 
 (Keybindings can be changed in the config file `BepInEx\config\GhostBuster.cfg`.)
 
