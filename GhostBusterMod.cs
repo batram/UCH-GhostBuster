@@ -31,6 +31,7 @@ namespace GhostBuster
         public static ConfigEntry<bool> ClearStoredGhosts;
         public static ConfigEntry<bool> ShowGhostText;
         public static ConfigEntry<bool> GhostOutfis;
+        public static ConfigEntry<float> GhostAlpha;
 
         public static ConfigEntry<UserMessageManager.UserMsgPriority> MsgPriority;
 
@@ -60,6 +61,8 @@ namespace GhostBuster
             ClearStoredGhosts = Config.Bind("General", "ClearStoredGhosts", false, "Remove stored ghost replays when new one is loaded");
             ShowGhostText = Config.Bind("General", "ShowGhostText", true, "Display text box above ghosts with name and time");
             GhostOutfis = Config.Bind("General", "GhostOutfis", true, "Show outfits for ghost replays");
+            GhostAlpha = Config.Bind("General", "GhostAlpha", 0.45f, "Set the alpha/transparency of ghosts. [1: solid, ..., 0: invisible]");
+            GameSettings.GetInstance().ghostAlpha = GhostAlpha.Value;
 
             MsgPriority = Config.Bind("GUI", "MsgPriority", UserMessageManager.UserMsgPriority.hi, "Display GUI messages: hi = show in middle, lo = show bottom right");
 
