@@ -30,6 +30,7 @@ namespace GhostBuster
         public static ConfigEntry<int> MaxGhostNumber;
         public static ConfigEntry<bool> ClearStoredGhosts;
         public static ConfigEntry<bool> ShowGhostText;
+        public static ConfigEntry<bool> GhostOutfis;
 
         public static ConfigEntry<UserMessageManager.UserMsgPriority> MsgPriority;
 
@@ -58,6 +59,7 @@ namespace GhostBuster
             SelectedGhostMode = Config.Bind("General", "SelectedGhostMode", GhostMode.Fastest, "The selected Replay Ghost Mode");
             ClearStoredGhosts = Config.Bind("General", "ClearStoredGhosts", false, "Remove stored ghost replays when new one is loaded");
             ShowGhostText = Config.Bind("General", "ShowGhostText", true, "Display text box above ghosts with name and time");
+            GhostOutfis = Config.Bind("General", "GhostOutfis", true, "Show outfits for ghost replays");
 
             MsgPriority = Config.Bind("GUI", "MsgPriority", UserMessageManager.UserMsgPriority.hi, "Display GUI messages: hi = show in middle, lo = show bottom right");
 
@@ -369,6 +371,16 @@ namespace GhostBuster
             static bool Prefix(Character __instance)
             {
                 __instance.isGhost = true;
+
+                if (GhostOutfis.Value)
+                {
+                    __instance.SetOutfitsFromArray(__instance.replayData.outfits);
+                }
+                else
+                {
+                    __instance.SetOutfitsFromArray(new int[] { -1, -1, -1, -1, -1, -1 });
+                }
+
                 if (InputReplay)
                 {
                     __instance.transform.position = __instance.replayData.GetDataForTime(0f, false).position;
