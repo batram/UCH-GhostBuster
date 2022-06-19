@@ -107,7 +107,24 @@ namespace GhostBuster
             int hash = Animator.StringToHash(data.printData());
             GhostFraid.Add(hash, character);
             character.gameObject.name = data.animal.ToString() + " (ghost)";
-            character.NetworkCharacterSprite = data.animal;
+            character.SetSprites(data.animal);
+            // outfits potentially contamintated by EvenMorePlayers mod clean them up
+            var clean_outfits = new int[6];
+            for (int i = 0; i < clean_outfits.Length; i++)
+            {
+                if (i < data.outfits.Length)
+                {
+                    clean_outfits[i] = data.outfits[i];
+                }
+                else
+                {
+                    clean_outfits[i] = -1;
+                }
+
+                Debug.Log("clean_outfits[i] " + clean_outfits[i]);
+
+            }
+            data.outfits = clean_outfits;
             character.SetOutfitsFromArray(data.outfits);
             character.NetworknetworkNumber = 0;
             character.NetworklocalNumber = 0;
