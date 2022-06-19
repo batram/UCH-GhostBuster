@@ -483,8 +483,6 @@ namespace GhostBuster
             }
         }
 
-
-
         [HarmonyPatch(typeof(ChallengeScoreboard), nameof(ChallengeScoreboard.uploadRoundTime))]
         static class ChallengeScoreboarduploadRoundTimePatch
         {
@@ -494,7 +492,6 @@ namespace GhostBuster
             }
         }
 
-
         [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.SetupStart))]
         static class ChallengeControlSetupStartPatch
         {
@@ -503,7 +500,6 @@ namespace GhostBuster
                 GhostFraid = new Dictionary<int, Character>();
             }
         }
-
 
         [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.startRun))]
         static class ChallengeControlDoPlayModePatch
@@ -518,7 +514,6 @@ namespace GhostBuster
                 {
                     switch (SelectedGhostMode.Value)
                     {
-
                         case GhostMode.All:
                             foreach (GhostData gd in Replays[name])
                             {
