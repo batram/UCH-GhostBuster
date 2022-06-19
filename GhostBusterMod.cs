@@ -185,8 +185,11 @@ namespace GhostBuster
                     __instance.transform.position = data.GetDataForTime(0f, false).position;
                     __instance.SetOutfitsFromArray(data.Outfits);
                     __instance.nameTag.setNameBoxText(data.PlayerName, __instance);
-
                     return false;
+                }
+                else
+                {
+                    __instance.SetPlayerPlayerColliders(false, Character.ColliderStates.Dead);
                 }
                 return true;
             }
