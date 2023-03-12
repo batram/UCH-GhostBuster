@@ -32,6 +32,7 @@ namespace GhostBuster
         public static ConfigEntry<bool> ShowGhostText;
         public static ConfigEntry<bool> GhostOutfis;
         public static ConfigEntry<float> GhostAlpha;
+        public static ConfigEntry<bool> InputReplay;
 
         public static ConfigEntry<UserMessageManager.UserMsgPriority> MsgPriority;
 
@@ -42,7 +43,7 @@ namespace GhostBuster
         public static ConfigEntry<KeyCode> ToggleGhostTextKey;
         public static ConfigEntry<KeyCode> ClearAllGhostReplaysKey;
 
-        public static bool InputReplay = false;
+
 
         public static Dictionary<int, Character> GhostFraid = new Dictionary<int, Character>();
         public static Dictionary<string, List<GhostData>> Replays = new Dictionary<string, List<GhostData>>();
@@ -62,6 +63,7 @@ namespace GhostBuster
             ShowGhostText = Config.Bind("General", "ShowGhostText", true, "Display text box above ghosts with name and time");
             GhostOutfis = Config.Bind("General", "GhostOutfis", true, "Show outfits for ghost replays");
             GhostAlpha = Config.Bind("General", "GhostAlpha", 0.45f, "Set the alpha/transparency of ghosts. [1: solid, ..., 0: invisible]");
+            InputReplay = Config.Bind("General", "InputReplay", false, "Record and replay from user input");
             GameSettings.GetInstance().ghostAlpha = GhostAlpha.Value;
 
             MsgPriority = Config.Bind("GUI", "MsgPriority", UserMessageManager.UserMsgPriority.hi, "Display GUI messages: hi = show in middle, lo = show bottom right");
@@ -73,7 +75,6 @@ namespace GhostBuster
             ToggleGhostTextKey = Config.Bind("INPUT", "ToggleGhostTextKey", KeyCode.N, "Keybinding: Toggle text above ghosts");
             ClearAllGhostReplaysKey = Config.Bind("INPUT", "ClearAllGhostReplays", KeyCode.X, "Keybinding: Clear all GhostReplay data");
         }
-
 
         static float GetWinTime(GhostData data)
         {
@@ -199,7 +200,7 @@ namespace GhostBuster
                 {
                     return false;
                 }
-                if (InputReplay)
+                if (InputReplay.Value)
                 {
                     __instance.Enable(false);
                     __instance.replayData = data;
@@ -222,7 +223,7 @@ namespace GhostBuster
         {
             static void Prefix(Character __instance, ref Character.NonLocalColliderMode mode)
             {
-                if (InputReplay && __instance.replayData != null)
+                if (InputReplay.Value && __instance.replayData != null)
                 {
                     mode = Character.NonLocalColliderMode.PickedLocal;
                 }
@@ -302,53 +303,79 @@ namespace GhostBuster
             }
         }
 
+        static void ReplayDataPoint(Character __instance, GhostData.GhostDataPoint datapoint)
+        {
+            foreach (KeyValuePair<GhostData.GhostEvent, object> keyValuePair in datapoint.eventVals)
+            {
+                if (keyValuePair.Key == GhostData.GhostEvent.Invalid)
+                {
+                    string inputs_string = (keyValuePair.Value as string);
+
+                    if (inputs_string.Contains(":"))
+                    {
+                        var split_input = inputs_string.Split(':');
+                        //int player, InputKey key, float valuef, bool valueb, bool changed OrthoUp:1:True:False
+                        __instance.ReceiveEvent(new InputEvent(-1, (InputEvent.InputKey)System.Enum.Parse(typeof(InputEvent.InputKey), split_input[0]), float.Parse(split_input[1]), bool.Parse(split_input[2]), bool.Parse(split_input[3])));
+                    }
+                }
+            }
+        }
+
         [HarmonyPatch(typeof(Character), nameof(Character.replayUpdate))]
         static class CharacterReplayUpdatePatch
         {
             static bool Prefix(Character __instance)
             {
-                if (InputReplay)
+                if (InputReplay.Value)
                 {
                     if (__instance.replayData != null && !__instance.replayPaused)
                     {
                         float num = Time.realtimeSinceStartup - __instance.replayStartTime;
 
-                        __instance.currentReplayFrame = __instance.replayData.GetDataForTime(num, true);
-
-                        foreach (KeyValuePair<GhostData.GhostEvent, object> keyValuePair in __instance.currentReplayFrame)
+                        for (int i = __instance.replayData.lastIndex; i < __instance.replayData.dataPoints.Count; i++)
                         {
-                            if (keyValuePair.Key == GhostData.GhostEvent.Invalid)
+                            if (__instance.replayData.dataPoints[i].timestamp > num)
                             {
-                                string inputs_string = (keyValuePair.Value as string);
-                                if (inputs_string.Contains("|"))
-                                {
-                                    var split_input = inputs_string.Split('|');
-
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Up, float.Parse(split_input[0]), true));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Down, float.Parse(split_input[1]), true));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Left, float.Parse(split_input[2]), true));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Right, float.Parse(split_input[3]), true));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Jump, float.Parse(split_input[4]), split_input[4] == "1"));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Suicide, float.Parse(split_input[5]), split_input[5] == "1"));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Sprint, float.Parse(split_input[6]), split_input[6] == "1"));
-                                    __instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Inventory, float.Parse(split_input[7]), split_input[7] == "1"));
-                                    /*
-                                    __instance.up = float.Parse(split_input[0]);
-                                    __instance.down = float.Parse(split_input[1]);
-                                    __instance.left = float.Parse(split_input[2]);
-                                    __instance.leftInput = float.Parse(split_input[2]);
-                                    __instance.right = float.Parse(split_input[3]);
-                                    __instance.rightInput = float.Parse(split_input[3]);
-                                    __instance.jump = split_input[4] == "1";
-                                    __instance.suicide = split_input[5] == "1";
-                                    __instance.sprint = split_input[6] == "1";
-                                    __instance.dance = split_input[7] == "1";
-                                    */
-                                    __instance.idleTimer = 0f;
-
-                                }
+                                __instance.replayData.lastIndex = i;
+                                break;
                             }
+                            ReplayDataPoint(__instance, __instance.replayData.dataPoints[i]);
                         }
+                        /*
+
+foreach (KeyValuePair<GhostData.GhostEvent, object> keyValuePair in __instance.currentReplayFrame)
+{
+if (keyValuePair.Key == GhostData.GhostEvent.Invalid)
+{
+string inputs_string = (keyValuePair.Value as string);
+if (inputs_string.Contains("|"))
+
+var split_input = inputs_string.Split('|');
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Up, float.Parse(split_input[0]), true));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Down, float.Parse(split_input[1]), true));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Left, float.Parse(split_input[2]), true));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Right, float.Parse(split_input[3]), true));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Jump, float.Parse(split_input[4]), split_input[4] == "1"));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Suicide, float.Parse(split_input[5]), split_input[5] == "1"));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Sprint, float.Parse(split_input[6]), split_input[6] == "1"));
+__instance.ReceiveEvent(new InputEvent(-1, InputEvent.InputKey.Inventory, float.Parse(split_input[7]), split_input[7] == "1"));
+__instance.up = float.Parse(split_input[0]);
+__instance.down = float.Parse(split_input[1]);
+__instance.left = float.Parse(split_input[2]);
+__instance.leftInput = float.Parse(split_input[2]);
+__instance.right = float.Parse(split_input[3]);
+__instance.rightInput = float.Parse(split_input[3]);
+__instance.jump = split_input[4] == "1";
+__instance.suicide = split_input[5] == "1";
+__instance.sprint = split_input[6] == "1";
+__instance.dance = split_input[7] == "1";
+
+__instance.idleTimer = 0f;
+
+
+}
+}
+} */
                         __instance.fullUpdate();
                     }
                     return false;
@@ -384,8 +411,9 @@ namespace GhostBuster
                     __instance.SetOutfitsFromArray(new int[] { -1, -1, -1, -1, -1, -1 });
                 }
 
-                if (InputReplay)
+                if (InputReplay.Value)
                 {
+                    __instance.replayData.lastIndex = 0;
                     __instance.transform.position = __instance.replayData.GetDataForTime(0f, false).position;
                     __instance.isReplaying = false;
                     __instance.replayStartTime = Time.realtimeSinceStartup;
@@ -449,7 +477,6 @@ namespace GhostBuster
                         {
                             //Edit entry if already set
                             __instance.ghostData.dataPoints[__instance.ghostData.dataPoints.Count - 1].AddData(GhostData.GhostEvent.Invalid, inputs);
-
                         }
                         else
                         {
@@ -518,15 +545,6 @@ namespace GhostBuster
             }
         }
 
-        [HarmonyPatch(typeof(ChallengeScoreboard), nameof(ChallengeScoreboard.uploadRoundTime))]
-        static class ChallengeScoreboarduploadRoundTimePatch
-        {
-            static void Prefix(List<string> playerIds, List<string> ghostUploadIDs)
-            {
-                Debug.Log("ghostUploadIDs " + playerIds.Join<string>() + " " + ghostUploadIDs.Join<string>());
-            }
-        }
-
         [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.SetupStart))]
         static class ChallengeControlSetupStartPatch
         {
@@ -534,13 +552,84 @@ namespace GhostBuster
             {
                 GhostFraid = new Dictionary<int, Character>();
             }
+
+            static void Postfix(ChallengeControl __instance)
+            {
+                foreach (GamePlayer gamePlayer2 in __instance.PlayerQueue)
+                {
+                    if (!gamePlayer2.CharacterInstance.ReplayRecorder)
+                    {
+                        GhostRecorder component = new GameObject("Ghost recorder - " + gamePlayer2.PickedAnimal.ToString(), new System.Type[] { typeof(GhostRecorder) }).GetComponent<GhostRecorder>();
+                        component.TrackCharacter(gamePlayer2.CharacterInstance);
+                        gamePlayer2.CharacterInstance.ReplayRecorder = component;
+                        Character character = UnityEngine.Object.Instantiate<Character>(__instance.CharacterPrefab);
+                        character.gameObject.name = gamePlayer2.PickedAnimal.ToString() + " (ghost)";
+                        character.NetworkCharacterSprite = gamePlayer2.PickedAnimal;
+                        character.SetOutfitsFromArray(gamePlayer2.characterOutfitsList);
+                        character.NetworknetworkNumber = 0;
+                        character.NetworklocalNumber = 0;
+                        character.isReplay = true;
+                        character.Disable(true);
+                        character.NetworkFindPlayerOnSpawn = false;
+                        character.Networkpicked = true;
+                        gamePlayer2.CharacterInstance.ReplayCharacter = character;
+                    }
+                }
+            }
         }
 
-        [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.startRun))]
+
+        [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.DoPlayMode))]
         static class ChallengeControlDoPlayModePatch
         {
             static void Postfix(ChallengeControl __instance)
             {
+                if (__instance.runStarted)
+                {
+
+                    if (GameSettings.GetInstance().DebugChallengeGhosts)
+                    {
+                        foreach (GamePlayer gamePlayer4 in __instance.PlayerQueue)
+                        {
+                            GhostRecorder replayRecorder = gamePlayer4.CharacterInstance.ReplayRecorder;
+                            replayRecorder.PauseTracking();
+                            replayRecorder.UpdateCharacter();
+                            gamePlayer4.CharacterInstance.ReplayCharacter.SetupReplay(replayRecorder.CurrentGhostData.GetCopy());
+                        }
+                    }
+                }
+            }
+        }
+
+
+        [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.startRun))]
+        static class ChallengeControlStartRunPatch
+        {
+            static void Postfix(ChallengeControl __instance)
+            {
+                if (GameSettings.GetInstance().DebugChallengeGhosts)
+                {
+                    foreach (GamePlayer gamePlayer2 in __instance.PlayerQueue)
+                    {
+                        GhostRecorder replayRecorder = gamePlayer2.CharacterInstance.ReplayRecorder;
+                        Character replayCharacter = gamePlayer2.CharacterInstance.ReplayCharacter;
+                        if (!replayRecorder.IsTracking)
+                        {
+                            replayRecorder.StartTracking(gamePlayer2.CharacterInstance);
+                        }
+                        if (replayRecorder.IsPaused)
+                        {
+                            replayRecorder.ResumeTracking();
+                            replayRecorder.Reset();
+                        }
+                        if (replayCharacter.HasReplayData)
+                        {
+                            replayCharacter.Enable(false);
+                            replayCharacter.StartReplay();
+                        }
+                    }
+                }
+
                 string name = GetCurrentLevelName();
 
                 if (ShowGhosts.Value &&
@@ -600,6 +689,70 @@ namespace GhostBuster
                 else
                 {
                     ClearReplayGhosts();
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Character), nameof(Character.ReceiveEvent))]
+        static class CharacterReceiveEventPatch
+        {
+            static void Prefix(Character __instance, InputEvent e)
+            {
+                if (__instance.ReplayRecorder && __instance.ReplayRecorder.IsTracking)
+                {
+                    GhostData.GhostDataPoint newDataPoint = new GhostData.GhostDataPoint(Time.realtimeSinceStartup - __instance.ReplayRecorder.timeOffset, __instance.transform.position);
+                    newDataPoint.eventVals.Add(GhostData.GhostEvent.Invalid, e.Key + ":" + e.Valuef + ":" + e.Valueb + ":" + e.Changed);
+                    newDataPoint.eventVals.Add(GhostData.GhostEvent.AnimState, __instance.CurrentAnim);
+                    newDataPoint.eventVals.Add(GhostData.GhostEvent.SecondaryAnim, __instance.SecondaryAnim);
+                    newDataPoint.eventVals.Add(GhostData.GhostEvent.Flipped, __instance.FlipSpriteX);
+                    __instance.ReplayRecorder.ghostData.AddGhostData(newDataPoint);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(ChallengeControl), nameof(ChallengeControl.handleEvent))]
+        static class ChallengeControlHandleEventPatch
+        {
+            static void PostFix(ChallengeControl __instance, GameEvent.GameEvent e)
+            {
+                if (e.GetType() == typeof(GameEvent.PauseEvent))
+                {
+                    GameEvent.PauseEvent pvent = (e as GameEvent.PauseEvent);
+                    if (GameSettings.GetInstance().DebugChallengeGhosts)
+                    {
+                        if ((e as GameEvent.PauseEvent).Paused)
+                        {
+                            using (Queue<GamePlayer>.Enumerator enumerator = __instance.PlayerQueue.GetEnumerator())
+                            {
+                                while (enumerator.MoveNext())
+                                {
+                                    GamePlayer gamePlayer3 = enumerator.Current;
+                                    Character characterInstance = gamePlayer3.CharacterInstance;
+                                    if (characterInstance.ReplayRecorder.IsTracking)
+                                    {
+                                        characterInstance.ReplayRecorder.PauseTracking();
+                                    }
+                                    if (characterInstance.isReplaying)
+                                    {
+                                        characterInstance.PauseReplay();
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                        foreach (GamePlayer gamePlayer4 in __instance.PlayerQueue)
+                        {
+                            Character characterInstance2 = gamePlayer4.CharacterInstance;
+                            if (characterInstance2.ReplayRecorder.IsTracking && characterInstance2.ReplayRecorder.IsPaused)
+                            {
+                                characterInstance2.ReplayRecorder.ResumeTracking();
+                            }
+                            if (characterInstance2.isReplaying && characterInstance2.replayPaused)
+                            {
+                                characterInstance2.ResumeReplay();
+                            }
+                        }
+                    }
                 }
             }
         }
