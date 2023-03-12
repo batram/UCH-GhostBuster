@@ -35,6 +35,20 @@ TODO:
  - Timeline/Event display
  - Editor
  - Ghost Trail, show the path of a ghost trough the level
+ 
+## Thunderstore installation
+The mod is available via [thunderstore.io](https://thunderstore.io/c/ultimate-chicken-horse/) and can be installed using [r2modman](https://github.com/ebkr/r2modmanPlus/releases/latest).
+
+## Manual installation
+- Download [BepInEx Version 5](https://github.com/BepInEx/BepInEx/releases/latest) for your platform (windows64 or linux) (UCH is a x64 program)
+- Download [the latest UCH-GhostBuster release (GhostBuster-x.x.x.x.zip)](https://github.com/batram/UCH-GhostBuster/releases) 
+- Put all the contents inside the zip files into your `Ultimate Chicken Horse` folder found via `Steam -> Manage -> Browse Local Files`.
+  (Just drag the Bepinex folder from the zip to your game folder.)
+Run game! (Linux users need an additional step, follow instructions in BepInEx)
+
+## Help
+If you have questions, comments or suggestions join the [UCH Mods discord](https://discord.gg/GgzDQW6zbq)
+
 
 ## Build with dotnet
 1. Download the source code of the mod (or use git):
