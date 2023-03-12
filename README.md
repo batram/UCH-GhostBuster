@@ -3,6 +3,10 @@ This is an `Ultimate Chicken Horse` `BepInEx` mod that enables ghost replays of 
 
 
 
+https://user-images.githubusercontent.com/1382274/178788019-aab8bc31-fa7a-4013-862c-f8063d854fd3.mp4
+
+
+
 In Treehouse (with Challenge mode selected) or in Challenge level hotkeys:
 
 | Key          |  Overrides                         |
