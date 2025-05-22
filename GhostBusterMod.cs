@@ -54,7 +54,6 @@ namespace GhostBuster
             Debug.Log("Let the Ghosts replay");
             GameSettings.GetInstance().DebugChallengeGhosts = true;
             new Harmony("GhostBuster").PatchAll();
-            GameSettings.GetInstance().DefaultGameMode = GameState.GameMode.CHALLENGE;
 
             ShowGhosts = Config.Bind("General", "ShowGhosts", false);
             MaxGhostNumber = Config.Bind("General", "MaxGhostNumber", 10, "Maximum number of ghost replays that are kept and shown in Ghost Mode ALL");
