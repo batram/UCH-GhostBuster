@@ -8,12 +8,12 @@ using System.Linq;
 using System.Reflection.Emit;
 using BepInEx.Configuration;
 
-[assembly: AssemblyVersion("0.0.0.5")]
-[assembly: AssemblyInformationalVersion("0.0.0.5")]
+[assembly: AssemblyVersion("0.0.6")]
+[assembly: AssemblyInformationalVersion("0.0.6")]
 
 namespace GhostBuster
 {
-    [BepInPlugin("GhostBuster", "GhostBuster", "0.0.0.5")]
+    [BepInPlugin("GhostBuster", "GhostBuster", "0.0.6")]
     public class GhostBusterMod : BaseUnityPlugin
     {
         public enum GhostMode
